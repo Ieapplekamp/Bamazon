@@ -34,7 +34,7 @@ function questions() {
       .prompt({
         name: "shopping",
         type: "list",
-        message: "Would are we looking to buy?",
+        message: "Were we looking to buy?",
         choices: ["Coffee", "Espresso Grinder", "Regular Grinder", "EXIT"]
       })
       .then(function(answer) {
@@ -75,13 +75,10 @@ function coffee() {
       var stock_quantity = inventory[userInput.item_id -1].stock_quantity;
       var price = inventory[userInput.item_id -1].price;
   
-      // console.log(stock_quantity);
-       
       if (stock_quantity > userInput.stock_quantity) {
         var customerTotal = price * userInput.stock_quantity;
         console.log("Bro your order will be: $" + customerTotal);
-        // customerTotal(price, userInput.stock_quantity, stock_quantity);
-        connection.end();
+        updateInventory(stock_quantity, userInput.stock_quantity, userInput.item_id);
       } else {
         console.log("Not enough in stock");
         connection.end();
@@ -115,13 +112,10 @@ function espressoGrinder() {
       var stock_quantity = inventory[userInput.item_id -1].stock_quantity;
       var price = inventory[userInput.item_id -1].price;
   
-      // console.log(stock_quantity);
-       
       if (stock_quantity > userInput.stock_quantity) {
         var customerTotal = price * userInput.stock_quantity;
         console.log("Bro your order will be: $" + customerTotal);
-        // customerTotal(price, userInput.stock_quantity, stock_quantity);
-        connection.end();
+        updateInventory(stock_quantity, userInput.stock_quantity, userInput.item_id);
       } else {
         console.log("Not enough in stock");
         connection.end();
@@ -155,13 +149,10 @@ function regularGrinder() {
       var stock_quantity = inventory[userInput.item_id -1].stock_quantity;
       var price = inventory[userInput.item_id -1].price;
   
-      // console.log(stock_quantity);
-       
       if (stock_quantity > userInput.stock_quantity) {
         var customerTotal = price * userInput.stock_quantity;
+        updateInventory(stock_quantity, userInput.stock_quantity, userInput.item_id);
         console.log("Bro your order will be: $" + customerTotal);
-        // customerTotal(price, userInput.stock_quantity, stock_quantity);
-        connection.end();
       } else {
         console.log("Not enough in stock");
         connection.end();
@@ -170,4 +161,29 @@ function regularGrinder() {
       
   });
 
+}
+
+function updateInventory(stock_quantity, userInputQuantity, item_id) {
+
+  var updatedQuantity = stock_quantity - userInputQuantity;
+
+  connection.query("UPDATE products SET stock_quantity=? WHERE item_id=?", [updatedQuantity, item_id],
+    function (err) {
+      if (err) throw err;
+      inquirer.prompt([
+        {
+          name: 'next',
+          type: 'list',
+          message: "What would you like to do next?",
+          choices: ["Continue Shopping", "Exit Store"]
+        }
+      ]).then(function (answer) {
+        if(answer.next === "Continue Shopping") {
+          questions();
+        } else {
+          console.log("Your session has ended!")
+          connection.end();
+        }
+      })
+    });
 }
