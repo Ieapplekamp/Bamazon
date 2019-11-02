@@ -35,26 +35,19 @@ function questions() {
         name: "shopping",
         type: "list",
         message: "Were we looking to buy?",
-        choices: ["Coffee", "Espresso Grinder", "Regular Grinder", "EXIT"]
+        choices: ["Coffee", "Espresso Grinder", "Regular Grinder"]
       })
       .then(function(answer) {
         
-        if (answer.shopping === "Coffee") {
-          coffee();
-        }
-        else if (answer.shopping === "Espresso Grinder") {
-          espressoGrinder();
-        } else if(answer.shopping === "Regular Grinder") {
-          regularGrinder();
-        } else {
-          connection.end();
-        }
+        if (answer.shopping) {
+          getProducts(answer.shopping);
+        } 
       });
 }
 
-function coffee() {
+function getProducts(department_name) {
 
-  connection.query("SELECT * FROM products WHERE department_name=?", ["Coffee"], function(err, res) {
+  connection.query("SELECT * FROM products WHERE department_name=?", department_name, function(err, res) {
     
     if (err) throw err;
     console.table(res);
@@ -63,19 +56,19 @@ function coffee() {
       {
         type: "input",
         name: "item_id",
-        message: "Which Item Id would you like to buy?"
+        message: "Type the item_id of the product you would like:"
       },
       {
         type: "input",
         name: "stock_quantity",
-        message: "How much were you looking to buy?"
+        message: "How many were you looking to buy?"
       }
     ]).then(function (userInput) {
         
       var stock_quantity = inventory[userInput.item_id -1].stock_quantity;
       var price = inventory[userInput.item_id -1].price;
   
-      if (stock_quantity > userInput.stock_quantity) {
+      if (stock_quantity >= userInput.stock_quantity) {
         var customerTotal = price * userInput.stock_quantity;
         console.log("Bro your order will be: $" + customerTotal);
         updateInventory(stock_quantity, userInput.stock_quantity, userInput.item_id);
@@ -89,79 +82,6 @@ function coffee() {
 
 }
 
-function espressoGrinder() {
-
-  connection.query("SELECT * FROM products WHERE department_name=?", ["Espresso Grinder"], function(err, res) {
-    
-    if (err) throw err;
-    console.table(res);
-
-    inquirer.prompt([
-      {
-        type: "input",
-        name: "item_id",
-        message: "Which Item Id would you like to buy?"
-      },
-      {
-        type: "input",
-        name: "stock_quantity",
-        message: "How much were you looking to buy?"
-      }
-    ]).then(function (userInput) {
-        
-      var stock_quantity = inventory[userInput.item_id -1].stock_quantity;
-      var price = inventory[userInput.item_id -1].price;
-  
-      if (stock_quantity > userInput.stock_quantity) {
-        var customerTotal = price * userInput.stock_quantity;
-        console.log("Bro your order will be: $" + customerTotal);
-        updateInventory(stock_quantity, userInput.stock_quantity, userInput.item_id);
-      } else {
-        console.log("Not enough in stock");
-        connection.end();
-      }
-    })
-      
-  });
-
-}
-
-function regularGrinder() {
-
-  connection.query("SELECT * FROM products WHERE department_name=?", ["Regular Grinder"], function(err, res) {
-    
-    if (err) throw err;
-    console.table(res);
-
-    inquirer.prompt([
-      {
-        type: "input",
-        name: "item_id",
-        message: "Which Item Id would you like to buy?"
-      },
-      {
-        type: "input",
-        name: "stock_quantity",
-        message: "How much were you looking to buy?"
-      }
-    ]).then(function (userInput) {
-        
-      var stock_quantity = inventory[userInput.item_id -1].stock_quantity;
-      var price = inventory[userInput.item_id -1].price;
-  
-      if (stock_quantity > userInput.stock_quantity) {
-        var customerTotal = price * userInput.stock_quantity;
-        updateInventory(stock_quantity, userInput.stock_quantity, userInput.item_id);
-        console.log("Bro your order will be: $" + customerTotal);
-      } else {
-        console.log("Not enough in stock");
-        connection.end();
-      }
-    })
-      
-  });
-
-}
 
 function updateInventory(stock_quantity, userInputQuantity, item_id) {
 
