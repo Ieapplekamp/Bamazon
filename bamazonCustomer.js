@@ -4,45 +4,47 @@ const mySQL = require("mysql");
 const inquirer = require("inquirer");
 let inventory = [];
 // const { table } = require('table');
-
-// console.log('hi' + mySQL);
-// console.log(key.mySQL.userName);
 var connection = mySQL.createConnection({
     host: "localhost",
     port: 3306,
     user: key.mySQL.userName,
     password: key.mySQL.password,
-    database: "bamazon",
-    insecureAuth : true
+    database: "bamazon"
 });
-
-
 
 connection.connect(function(err) {
     if (err) throw err;
-    // run the start function after the connection is made to prompt the user
-    // console.log("this is working");
-    
+    console.log("connected as id " + connection.threadId);
     start();
 });
 
-// console.log(makeTable);
 
 function start() {
+  connection.query("SELECT * FROM products", function(err, res){
+    if (err) throw err;
+    console.table(res)
+    inventory = res;
+    questions();
+  })
+}
+
+
+function questions() {
     inquirer
       .prompt({
         name: "shopping",
         type: "list",
-        message: "Would you like to buy [Coffee], an [Espresso Grinder] or a [Regular Grinder]?",
+        message: "Would are we looking to buy?",
         choices: ["Coffee", "Espresso Grinder", "Regular Grinder", "EXIT"]
       })
       .then(function(answer) {
-        // based on their answer, either call the coffee or espressoGrinder or regularGrinder functions
-        if (answer.shipping === "Coffee") {
-        //   coffee();
+        
+        if (answer.shopping === "Coffee") {
+          coffee();
         }
-        else if(answer.shopping === "Espresso Grinder") {
-        //   espressoGrinder();
+        else if (answer.shopping === "Espresso Grinder") {
+          // coffee();
+          // espressoGrinder();
         } else if(answer.shopping === "Regular Grinder") {
         //   regularGrinder();
         } else {
@@ -51,23 +53,42 @@ function start() {
       });
 }
 
-// function coffee() {
-//     connection.query("SELECT department_name * FROM products", function (err, results) {
-//         if (err) throw err;
-//     }
-        
-        
-// }
+function coffee() {
 
-
-// function makeTable() {
-//     connection.query("SELECT * FROM products", function (err, results) {
-//         if (err) throw err;
+  connection.query("SELECT * FROM products WHERE department_name=?", ["Coffee"], function(err, res) {
     
+    if (err) throw err;
+    console.table(res);
 
-//     })
+    inquirer.prompt([
+      {
+        type: "input",
+        name: "item_id",
+        message: "Which Item Id would you like to buy?"
+      },
+      {
+        type: "input",
+        name: "stock_quantity",
+        message: "How much were you looking to buy?"
+      }
+    ]).then(function (userInput) {
+        
+      var stock_quantity = inventory[userInput.item_id -1].stock_quantity;
+      var price = inventory[userInput.item_id -1].price;
+  
+      // console.log(stock_quantity);
+       
+      if (stock_quantity > userInput.stock_quantity) {
+        var customerTotal = price * userInput.stock_quantity;
+        console.log("Bro your order will be: $" + customerTotal);
+        // customerTotal(price, userInput.stock_quantity, stock_quantity);
+        connection.end();
+      } else {
+        console.log("Not enough in stock");
+        connection.end();
+      }
+    })
+      
+  });
 
- 
-
-// -- Something slacked out on monday(day u missed) has to do with connecting to the server, the password is your mySQL passwork 'yourRootPassword'
-// ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'yourRootPassword'
+}
