@@ -38,7 +38,6 @@ function questions() {
         choices: ["Coffee", "Espresso Grinder", "Regular Grinder"]
       })
       .then(function(answer) {
-        
         if (answer.shopping) {
           getProducts(answer.shopping);
         } 
@@ -50,6 +49,10 @@ function getProducts(department_name) {
   connection.query("SELECT * FROM products WHERE department_name=?", department_name, function(err, res) {
     
     if (err) throw err;
+    if(res[0] === undefined) {
+      console.log("We do not carry an item with that ID.");
+      start();
+    }
     console.table(res);
 
     inquirer.prompt([
@@ -70,11 +73,25 @@ function getProducts(department_name) {
   
       if (stock_quantity >= userInput.stock_quantity) {
         var customerTotal = price * userInput.stock_quantity;
-        console.log("Bro your order will be: $" + customerTotal);
+        console.log("Your order will be: $" + customerTotal);
         updateInventory(stock_quantity, userInput.stock_quantity, userInput.item_id);
       } else {
         console.log("Not enough in stock");
-        connection.end();
+        inquirer.prompt([
+          {
+            name: 'next',
+            type: 'list',
+            message: "What would you like to do next?",
+            choices: ["Continue Shopping", "Exit Store"]
+          }
+        ]).then(function (answer) {
+          if (answer.next === "Continue Shopping") {
+            questions();
+          } else {
+            console.log("Thank you, please don't come back!")
+            connection.end();
+          }
+        })
       }
     })
       
@@ -101,7 +118,7 @@ function updateInventory(stock_quantity, userInputQuantity, item_id) {
         if(answer.next === "Continue Shopping") {
           questions();
         } else {
-          console.log("Your session has ended!")
+          console.log("Thank you come again!")
           connection.end();
         }
       })
