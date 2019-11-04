@@ -2,7 +2,7 @@
 
 ### Overview 
 
-'Bamazon' a command line storefront app that allows a customer to access a database of products for sale and 'purchase' their desired product. The app also allows for a 'manager' to update the database as needed.
+'Bamazon' is a command line storefront app that allows a customer to access a database of products for sale and 'purchase' their desired product. The app also allows for a 'manager' to update the database as needed.
 
 **Technologies Used**
 ```
@@ -31,4 +31,4 @@ The Manager command line prompts the user to select from an array of options. Th
 
 ![Manager2 Gif](https://media.giphy.com/media/SWcDAKBXU6TtEOQ9se/giphy.gif)
 
-##### Thank you for showing at 'Bamazon'
+##### Thank you for shopping at 'Bamazon'
