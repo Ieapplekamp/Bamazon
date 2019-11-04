@@ -11,10 +11,12 @@ var connection = mySQL.createConnection({
     database: "bamazon"
 });
 
-connection.connect(function(err) {
+connection.connect(function (err) {
+    
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
     start();
+
 });
 
 function start() {
@@ -47,19 +49,22 @@ function start() {
 }
 
 function viewInventory() {
-   
-    connection.query("SELECT * FROM products", function(err, res) {
+    connection.query("SELECT * FROM products", function (err, res) {
+        
         if(err) throw err;
         console.table(res);
         start();
+
     });
 }
 
 function lowInventory() {
-    connection.query("SELECT * FROM products HAVING stock_quantity < 10", function(err, res) {
+    connection.query("SELECT * FROM products HAVING stock_quantity < 10", function (err, res) {
+        
         if(err) throw err;
         console.table(res)
         start();
+
     });
 }
 
@@ -77,26 +82,35 @@ function addToInventory() {
         message: "What is the quanitity you would like to add to the inventory?"
     }
     ]).then(function(update) {
-        connection.query("SELECT * FROM products WHERE ?", {item_id: update.item_id}, function(err, res) {
-            if(err) throw err;
-            if(res[0] === undefined) {
-                console.log("We do not carry an item with that ID.");
+        connection.query("SELECT * FROM products WHERE ?", { item_id: update.item_id }, function (err, res) {
+            
+            if (err) throw err;
+            
+            if (res[0] === undefined) {
+                
+                console.log("\n We do not carry an item with that ID. \n");
                 start();
+
             } else {
+            
                 var addInventory = res[0].stock_quantity += parseInt(update.quanitity);
+
                 connection.query("UPDATE products SET ? WHERE ?",
-                [
-                    {
+                    [{
                         stock_quantity: addInventory
                     },
                     {
                         item_id: update.item_id
-                    }
-                ], function(err) {
-                    if(err) throw err;
-                    console.log("You have added " + update.quanitity + res[0].product_name + ". The total quantity is now " + res[0].stock_quantity + ".");
-                    start();
-                });
+                    }],
+                        function (err) {
+                    
+                            if (err) throw err;
+                        
+                            console.log("\n" + update.quanitity + " " + res[0].product_name + " " + res[0].department_name + "(s). The total stock quantity is now " + res[0].stock_quantity + ".\n");
+
+                            start();
+
+                        });
             }
         });
     });
@@ -131,7 +145,6 @@ function newProduct() {
             message: "What is the stock quantity of this product:"
         }
     ]).then(function(response) {
-        
         connection.query("INSER INTO products SET ?",
         [{
             item_id: response.item_id,
@@ -141,8 +154,10 @@ function newProduct() {
             stock_quantity: response.stock_quantity
         }],
             function (err) {
+
             if(err) throw err;
             viewInventory();
+                
         });
     });
 }
