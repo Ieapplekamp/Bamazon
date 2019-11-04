@@ -25,7 +25,7 @@ function start() {
             name: "options",
             type: "list",
             message: "What would you like to do next?",
-            choices: ["View products for sale", "View low Inventory", "Add products to inventory", "Add NEW products to inventory", "EXIT"]
+            choices: ["View products for sale", "View low Inventory", "Add products to inventory", "Add a NEW products to inventory", "EXIT"]
         }
     ]).then(function(answer) {
         switch(answer.options) {
@@ -145,7 +145,7 @@ function newProduct() {
             message: "What is the stock quantity of this product:"
         }
     ]).then(function(response) {
-        connection.query("INSER INTO products SET ?",
+        connection.query("INSERT INTO products SET ?",
         [{
             item_id: response.item_id,
             product_name: response.product_name,
