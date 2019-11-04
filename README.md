@@ -19,6 +19,7 @@ node bamazonCustomer.js
 The customer command line will return the information from the database, prompting the user to select an department to browse. Once selected, the database will return all the values of that department. If a user is unable to purchase a product due to supply, the will be notified and given a option to continue or disconnect. 
 
 ![Customer Gif](https://media.giphy.com/media/W2F260Ya8FbjZYJ56h/giphy.gif)
+![Please](/please.png)
 
 ### Manager
 ```
